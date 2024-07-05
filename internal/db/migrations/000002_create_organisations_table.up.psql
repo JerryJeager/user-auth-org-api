@@ -1,0 +1,10 @@
+CREATE TABLE organisations(
+	id UUID,
+	name VARCHAR(100) NOT NULL,
+	description VARCHAR,
+	user_id UUID NOT NULL REFERENCES users(id),
+    created_at   TIMESTAMPTZ NOT NULL,
+    updated_at   TIMESTAMPTZ,
+    deleted_at   TIMESTAMPTZ,
+	PRIMARY KEY(id, user_id)
+);
