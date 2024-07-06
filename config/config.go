@@ -5,9 +5,10 @@ import (
 	"log"
 	"os"
 
+	"github.com/JerryJeager/user-auth-org-api/internal/service/models"
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"github.com/joho/godotenv"
 )
 
 var Session *gorm.DB
@@ -41,6 +42,8 @@ func ConnectToDB() {
 		log.Fatal(err)
 	}
 
+	db.AutoMigrate(models.User{})
+	db.AutoMigrate(models.Organisations{})
 	Session = db.Session(&gorm.Session{})
 	if Session != nil {
 		fmt.Println("success: created db session")
