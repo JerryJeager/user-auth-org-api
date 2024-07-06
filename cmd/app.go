@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/JerryJeager/user-auth-org-api/docs"
 	"github.com/JerryJeager/user-auth-org-api/manualwire"
 	"github.com/JerryJeager/user-auth-org-api/middleware"
 	"github.com/gin-gonic/gin"
@@ -19,6 +20,11 @@ func ExecuteApiRoutes() {
 	router.Use(middleware.CORSMiddleware())
 	router.GET("", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"message": "hello from user-auth-org server"})
+	})
+	api := router.Group("/api")
+
+	api.GET("/info/openapi.yaml", func(c *gin.Context) {
+		c.String(200, docs.OpenApiDocs())
 	})
 
 	auth := router.Group("/auth")

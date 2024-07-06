@@ -1,0 +1,396 @@
+openapi: 3.0.0
+info:
+  title: User Authentication & Organisation API
+  version: 1.0.0
+  description: API for user authentication and organisation management
+servers:
+  - url: https://user-auth-org-api-production.up.railway.app
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Users
+      summary: Register a new user and create a default organisation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - firstName
+                - lastName
+                - email
+                - password
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                phone:
+                  type: string
+      responses:
+        "201":
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Registration successful
+                  data:
+                    type: object
+                    properties:
+                      accessToken:
+                        type: string
+                        example: eyJh...
+                      user:
+                        type: object
+                        properties:
+                          userId:
+                            type: string
+                          firstName:
+                            type: string
+                          lastName:
+                            type: string
+                          email:
+                            type: string
+                          phone:
+                            type: string
+        "400":
+          description: Registration unsuccessful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: Bad request
+                  message:
+                    type: string
+                    example: Registration unsuccessful
+                  statusCode:
+                    type: integer
+                    example: 400
+  /auth/login:
+    post:
+      summary: Login a user
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Login successful
+                  data:
+                    type: object
+                    properties:
+                      accessToken:
+                        type: string
+                        example: eyJh...
+                      user:
+                        type: object
+                        properties:
+                          userId:
+                            type: string
+                          firstName:
+                            type: string
+                          lastName:
+                            type: string
+                          email:
+                            type: string
+                          phone:
+                            type: string
+        "401":
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: Bad request
+                  message:
+                    type: string
+                    example: Authentication failed
+                  statusCode:
+                    type: integer
+                    example: 401
+  /api/users/{id}:
+    get:
+      summary: Get user record
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Retrieved user record
+                  data:
+                    type: object
+                    properties:
+                      userId:
+                        type: string
+                      firstName:
+                        type: string
+                      lastName:
+                        type: string
+                      email:
+                        type: string
+                      phone:
+                        type: string
+  /api/organisations:
+    get:
+      summary: Get all organisations for the logged-in user
+      tags:
+        - Organisations
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Retrieved organisations
+                  data:
+                    type: object
+                    properties:
+                      organisations:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            orgId:
+                              type: string
+                            name:
+                              type: string
+                            description:
+                              type: string
+    post:
+      summary: Create a new organisation
+      tags:
+        - Organisations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        "201":
+          description: Organisation created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Organisation created successfully
+                  data:
+                    type: object
+                    properties:
+                      orgId:
+                        type: string
+                      name:
+                        type: string
+                      description:
+                        type: string
+        "400":
+          description: Client error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: Bad Request
+                  message:
+                    type: string
+                    example: Client error
+                  statusCode:
+                    type: integer
+                    example: 400
+  /api/organisations/{orgId}:
+    get:
+      summary: Get a single organisation record
+      tags:
+        - Organisations
+      parameters:
+        - in: path
+          name: orgId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Retrieved organisation record
+                  data:
+                    type: object
+                    properties:
+                      orgId:
+                        type: string
+                      name:
+                        type: string
+                      description:
+                        type: string
+  /api/organisations/{orgId}/users:
+    post:
+      summary: Add a user to an organisation
+      tags:
+        - Organisations
+      parameters:
+        - in: path
+          name: orgId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+              properties:
+                userId:
+                  type: string
+      responses:
+        "200":
+          description: User added to organisation successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: User added to organisation successfully
+components:
+  schemas:
+    User:
+      type: object
+      required:
+        - userId
+        - firstName
+        - lastName
+        - email
+        - password
+      properties:
+        userId:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        phone:
+          type: string
+    Organisation:
+      type: object
+      required:
+        - orgId
+        - name
+      properties:
+        orgId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+    ValidationError:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
