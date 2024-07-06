@@ -10,6 +10,7 @@ import (
 
 type UserSv interface {
 	CreateUser(ctx context.Context, user *models.CreateUserReq) (*models.User, string, error)
+	LoginUser (ctx context.Context, user *models.LoginUserReq) (*models.User, string, error)
 }
 
 type UserServ struct {
@@ -46,4 +47,18 @@ func (o *UserServ) CreateUser(ctx context.Context, user *models.CreateUserReq) (
 	}
 
 	return &newUser, token, nil
+}
+
+func (o *UserServ) LoginUser (ctx context.Context, user *models.LoginUserReq) (*models.User, string, error){
+	validUser, err := o.repo.GetUserByEmail(ctx, user.Email)
+	if err != nil{
+		return &models.User{}, "", err
+	}
+
+	token, err := utils.GenerateToken(validUser.ID)
+	if err != nil{
+		return &models.User{}, "", err
+	}
+
+	return validUser, token, nil
 }

@@ -29,6 +29,7 @@ func ExecuteApiRoutes() {
 
 	auth := router.Group("/auth")
 	auth.POST("/register", userController.CreateUser)
+	auth.POST("/login", userController.LoginUser)
 
 	port := os.Getenv("PORT")
 	if port == "" {

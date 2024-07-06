@@ -40,3 +40,26 @@ func (o *UserController) CreateUser(ctx *gin.Context) {
 		},
 	})
 }
+
+func (o *UserController) LoginUser(ctx *gin.Context) {
+	var user models.LoginUserReq
+	if err := ctx.ShouldBindJSON(&user); err != nil {
+		ctx.JSON(http.StatusUnauthorized, ErrorLoginUser)
+		return
+	}
+
+	validUser, token, err := o.serv.LoginUser(ctx, &user)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, ErrorLoginUser)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Login successful",
+		"data": GoodCreateUserRes{
+			AccessToken: token,
+			User:        *GetUserRes(validUser),
+		},
+	})
+}

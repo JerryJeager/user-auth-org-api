@@ -34,6 +34,10 @@ type CreateUserReq struct {
 	Password  string `json:"password" binding:"required"`
 	Phone     string `json:"phone"`
 }
+type LoginUserReq struct {
+	Email     string `json:"email" binding:"required" gorm:"unique"`
+	Password  string `json:"password" binding:"required"`
+}
 
 func (user *User) HashPassword() error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)

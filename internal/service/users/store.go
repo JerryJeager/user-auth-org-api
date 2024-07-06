@@ -10,6 +10,7 @@ import (
 
 type UserStore interface {
 	CreateUser(ctx context.Context, user *models.User) error
+	GetUserByEmail(ctx context.Context, email string) (*models.User, error)
 }
 
 type UserRepo struct {
@@ -26,4 +27,13 @@ func (o *UserRepo) CreateUser(ctx context.Context, user *models.User) error {
 		return result.Error
 	}
 	return nil
+}
+
+func (o *UserRepo) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
+	var user models.User
+	result := config.Session.First(&user, "email = ?", email).WithContext(ctx)
+	if result.Error != nil {
+		return &models.User{}, result.Error
+	}
+	return &user, nil
 }
