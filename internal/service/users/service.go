@@ -10,7 +10,8 @@ import (
 
 type UserSv interface {
 	CreateUser(ctx context.Context, user *models.CreateUserReq) (*models.User, string, error)
-	LoginUser (ctx context.Context, user *models.LoginUserReq) (*models.User, string, error)
+	LoginUser(ctx context.Context, user *models.LoginUserReq) (*models.User, string, error)
+	GetUser(ctx context.Context, userID uuid.UUID) (*models.User, error)
 }
 
 type UserServ struct {
@@ -40,25 +41,29 @@ func (o *UserServ) CreateUser(ctx context.Context, user *models.CreateUserReq) (
 	if err != nil {
 		return &models.User{}, "", err
 	}
-	
-	token, err :=  utils.GenerateToken(id)
-	if err != nil{
-		return &newUser, "", err 
+
+	token, err := utils.GenerateToken(id)
+	if err != nil {
+		return &newUser, "", err
 	}
 
 	return &newUser, token, nil
 }
 
-func (o *UserServ) LoginUser (ctx context.Context, user *models.LoginUserReq) (*models.User, string, error){
+func (o *UserServ) LoginUser(ctx context.Context, user *models.LoginUserReq) (*models.User, string, error) {
 	validUser, err := o.repo.GetUserByEmail(ctx, user.Email)
-	if err != nil{
+	if err != nil {
 		return &models.User{}, "", err
 	}
 
 	token, err := utils.GenerateToken(validUser.ID)
-	if err != nil{
+	if err != nil {
 		return &models.User{}, "", err
 	}
 
 	return validUser, token, nil
+}
+
+func (o *UserServ) GetUser(ctx context.Context, userID uuid.UUID) (*models.User, error) {
+	return o.repo.GetUser(ctx, userID)
 }

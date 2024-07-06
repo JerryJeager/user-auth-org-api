@@ -6,6 +6,7 @@ import (
 	"github.com/JerryJeager/user-auth-org-api/internal/service/models"
 	"github.com/JerryJeager/user-auth-org-api/internal/service/users"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type UserController struct {
@@ -44,13 +45,13 @@ func (o *UserController) CreateUser(ctx *gin.Context) {
 func (o *UserController) LoginUser(ctx *gin.Context) {
 	var user models.LoginUserReq
 	if err := ctx.ShouldBindJSON(&user); err != nil {
-		ctx.JSON(http.StatusUnauthorized, ErrorLoginUser)
+		ctx.JSON(http.StatusUnauthorized, ErrorAuthUser)
 		return
 	}
 
 	validUser, token, err := o.serv.LoginUser(ctx, &user)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, ErrorLoginUser)
+		ctx.JSON(http.StatusUnauthorized, ErrorAuthUser)
 		return
 	}
 
@@ -61,5 +62,30 @@ func (o *UserController) LoginUser(ctx *gin.Context) {
 			AccessToken: token,
 			User:        *GetUserRes(validUser),
 		},
+	})
+}
+
+func (o *UserController) GetUser(ctx *gin.Context) {
+	var userIDPathParam UserIDPathParam
+	if err := ctx.ShouldBindUri(&userIDPathParam); err != nil{
+		ctx.JSON(http.StatusUnauthorized, ErrorAuthUser)
+		return
+	}
+
+	user, err := o.serv.GetUser(ctx, uuid.MustParse(userIDPathParam.UserID))
+
+	if err != nil{
+		ctx.JSON(http.StatusUnauthorized, BadUserRes{
+			Status: "Bad request",
+			Message: "failed to get user",
+			StatusCode: 401,
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "get user successful",
+		"data": *GetUserRes(user),
 	})
 }

@@ -5,12 +5,14 @@ import (
 
 	"github.com/JerryJeager/user-auth-org-api/config"
 	"github.com/JerryJeager/user-auth-org-api/internal/service/models"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type UserStore interface {
 	CreateUser(ctx context.Context, user *models.User) error
 	GetUserByEmail(ctx context.Context, email string) (*models.User, error)
+	GetUser(ctx context.Context, userID uuid.UUID) (*models.User, error)
 }
 
 type UserRepo struct {
@@ -34,6 +36,15 @@ func (o *UserRepo) GetUserByEmail(ctx context.Context, email string) (*models.Us
 	result := config.Session.First(&user, "email = ?", email).WithContext(ctx)
 	if result.Error != nil {
 		return &models.User{}, result.Error
+	}
+	return &user, nil
+}
+
+func (o *UserRepo) GetUser(ctx context.Context, userID uuid.UUID) (*models.User, error) {
+	var user models.User
+	result := config.Session.First(&user, "id = ?", userID).WithContext(ctx)
+	if result.Error != nil {
+		return &models.User{}, nil
 	}
 	return &user, nil
 }

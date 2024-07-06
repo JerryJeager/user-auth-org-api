@@ -2,6 +2,10 @@ package http
 
 import "github.com/JerryJeager/user-auth-org-api/internal/service/models"
 
+type UserIDPathParam struct {
+	UserID string `uri:"id" binding:"required,uuid_rfc4122"`
+}
+
 type BadUserRes struct {
 	Status     string `json:"status"`
 	Message    string `json:"message"`
@@ -17,7 +21,7 @@ var ErrorCreatingUser = BadUserRes{
 	Message:    "Registration unsuccessful",
 	StatusCode: 400,
 }
-var ErrorLoginUser = BadUserRes{
+var ErrorAuthUser = BadUserRes{
 	Status:     "Bad request",
 	Message:    "Authentication failed",
 	StatusCode: 401,

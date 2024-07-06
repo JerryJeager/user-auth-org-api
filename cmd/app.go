@@ -31,6 +31,8 @@ func ExecuteApiRoutes() {
 	auth.POST("/register", userController.CreateUser)
 	auth.POST("/login", userController.LoginUser)
 
+	api.GET("/users/:id", middleware.JwtAuthMiddleware(), userController.GetUser)
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
