@@ -1,1 +1,100 @@
 package http
+
+import (
+	"net/http"
+
+	"github.com/JerryJeager/user-auth-org-api/internal/service/models"
+	"github.com/JerryJeager/user-auth-org-api/internal/service/organisations"
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+)
+
+type OrgController struct {
+	serv organisations.OrgSv
+}
+
+func NewOrgController(serv organisations.OrgSv) *OrgController {
+	return &OrgController{serv: serv}
+}
+
+func (o *OrgController) CreateOrganisation(ctx *gin.Context) {
+	var org models.Organisation
+	if err := ctx.ShouldBindJSON(&org); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status":     "Bad request",
+			"statusCode": 400,
+			"message":    "failed to create organisation",
+		})
+		return
+	}
+
+	id, ok := ctx.Get("user_id")
+	if !ok {
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+	var userID uuid.UUID
+	if id.(string) == "" {
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+	userID, err := uuid.Parse(id.(string))
+	if err != nil {
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+
+	organisation, err := o.serv.CreateOrganisation(ctx, &org, userID)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status":     "Bad request",
+			"statusCode": 400,
+			"message":    "failed to create organisation",
+		})
+		return
+	}
+	ctx.JSON(http.StatusCreated, gin.H{
+		"status":  "success",
+		"message": "Organisation created successfully",
+		"data": models.OrganisationRes{
+			ID:          organisation.ID,
+			Name:        organisation.Name,
+			Description: organisation.Description,
+		},
+	})
+
+}
+
+func (o *OrgController) CreateOrgMember(ctx *gin.Context) {
+	var newMember models.CreateMemberReq
+	if err := ctx.ShouldBindJSON(&newMember); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status":  "Bad request",
+			"message": "user id is required",
+		})
+		return
+	}
+	var orgID OrgIDPathParam
+	if err := ctx.ShouldBindUri(&orgID); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status":  "Bad request",
+			"message": "organisation id is required in path parameter",
+		})
+		return
+	}
+
+	err := o.serv.CreateOrgMember(ctx, uuid.MustParse(orgID.OrgID), newMember.UserID)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status":  "Bad request",
+			"message": "failed to add user to organisation",
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "User added to organisation successfully",
+	})
+}

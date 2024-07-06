@@ -12,6 +12,7 @@ import (
 )
 
 var userController = manualwire.GetUserController()
+var orgController = manualwire.GetOrgController()
 
 func ExecuteApiRoutes() {
 
@@ -32,6 +33,10 @@ func ExecuteApiRoutes() {
 	auth.POST("/login", userController.LoginUser)
 
 	api.GET("/users/:id", middleware.JwtAuthMiddleware(), userController.GetUser)
+
+	organisations := api.Group("/organisations")
+	organisations.POST("", middleware.JwtAuthMiddleware(), orgController.CreateOrganisation)
+	organisations.POST("/:orgId/users", orgController.CreateOrgMember)
 
 	port := os.Getenv("PORT")
 	if port == "" {

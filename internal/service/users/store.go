@@ -10,7 +10,7 @@ import (
 )
 
 type UserStore interface {
-	CreateUser(ctx context.Context, user *models.User) error
+	CreateUser(ctx context.Context, user *models.User, org *models.Organisation, mem *models.Member) error
 	GetUserByEmail(ctx context.Context, email string) (*models.User, error)
 	GetUser(ctx context.Context, userID uuid.UUID) (*models.User, error)
 }
@@ -23,12 +23,20 @@ func NewUserRepo(client *gorm.DB) *UserRepo {
 	return &UserRepo{client: client}
 }
 
-func (o *UserRepo) CreateUser(ctx context.Context, user *models.User) error {
-	result := config.Session.Create(user).WithContext(ctx)
-	if result.Error != nil {
-		return result.Error
-	}
-	return nil
+func (o *UserRepo) CreateUser(ctx context.Context, user *models.User, org *models.Organisation, mem *models.Member) error {
+	err := config.Session.Transaction(func(tx *gorm.DB) error {
+		if result := tx.Create(user).WithContext(ctx); result.Error != nil {
+			return result.Error
+		}
+		if result := tx.Create(org).WithContext(ctx); result.Error != nil {
+			return result.Error
+		}
+		if result := tx.Create(mem).WithContext(ctx); result.Error != nil {
+			return result.Error
+		}
+		return nil
+	})
+	return err
 }
 
 func (o *UserRepo) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {

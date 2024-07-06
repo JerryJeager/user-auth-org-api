@@ -1,0 +1,5 @@
+CREATE TABLE members(
+	user_id UUID NOT NULL REFERENCES users(id),
+	organisation_id UUID NOT NULL REFERENCES organisations(id),
+	PRIMARY KEY(user_id, organisation_id)
+);

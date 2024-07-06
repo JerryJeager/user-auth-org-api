@@ -5,6 +5,9 @@ import "github.com/JerryJeager/user-auth-org-api/internal/service/models"
 type UserIDPathParam struct {
 	UserID string `uri:"id" binding:"required,uuid_rfc4122"`
 }
+type OrgIDPathParam struct {
+	OrgID string `uri:"orgId" binding:"required,uuid_rfc4122"`
+}
 
 type BadUserRes struct {
 	Status     string `json:"status"`

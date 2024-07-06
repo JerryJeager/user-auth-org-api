@@ -24,6 +24,7 @@ func NewUserService(repo UserStore) *UserServ {
 
 func (o *UserServ) CreateUser(ctx context.Context, user *models.CreateUserReq) (*models.User, string, error) {
 	id := uuid.New()
+	orgID := uuid.New()
 	newUser := models.User{
 		ID:        id,
 		FirstName: user.FirstName,
@@ -32,12 +33,22 @@ func (o *UserServ) CreateUser(ctx context.Context, user *models.CreateUserReq) (
 		Phone:     user.Phone,
 		Password:  user.Password,
 	}
+	newOrg := models.Organisation{
+		ID: orgID,
+		Name: utils.OrgName(user.FirstName),
+		Description: "",
+		UserID: id,
+	}
+	newMem := models.Member{
+		UserID: id,
+		OrganisationID: orgID,
+	}
 
 	if err := newUser.HashPassword(); err != nil {
 		return &models.User{}, "", err
 	}
 
-	err := o.repo.CreateUser(ctx, &newUser)
+	err := o.repo.CreateUser(ctx, &newUser, &newOrg, &newMem)
 	if err != nil {
 		return &models.User{}, "", err
 	}

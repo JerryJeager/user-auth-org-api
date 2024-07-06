@@ -20,6 +20,7 @@ type User struct {
 	Password  string     `json:"password"`
 	Phone     string     `json:"phone"`
 }
+
 type GetUserRes struct {
 	ID        uuid.UUID `json:"userId" gorm:"primary_key;type:uuid"`
 	FirstName string    `json:"firstName"`
@@ -35,8 +36,8 @@ type CreateUserReq struct {
 	Phone     string `json:"phone"`
 }
 type LoginUserReq struct {
-	Email     string `json:"email" binding:"required" gorm:"unique"`
-	Password  string `json:"password" binding:"required"`
+	Email    string `json:"email" binding:"required" gorm:"unique"`
+	Password string `json:"password" binding:"required"`
 }
 
 func (user *User) HashPassword() error {
