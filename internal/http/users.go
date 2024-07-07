@@ -21,7 +21,11 @@ func (o *UserController) CreateUser(ctx *gin.Context) {
 	var user models.CreateUserReq
 
 	if err := ctx.ShouldBindJSON(&user); err != nil {
-		ctx.JSON(http.StatusBadRequest, ErrorCreatingUser)
+		ctx.JSON(422, gin.H{
+			"errors": []Invalid{
+				Invalid{Field: "firstName, lastName, email and password required", Message: err.Error()},
+			},
+		})
 		return
 	}
 

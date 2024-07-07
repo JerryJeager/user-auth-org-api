@@ -48,9 +48,9 @@ func (o *OrgController) CreateOrganisation(ctx *gin.Context) {
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"status":     "Bad request",
+			"status":     "Bad Request",
 			"statusCode": 400,
-			"message":    "failed to create organisation",
+			"message":    "Client error",
 		})
 		return
 	}

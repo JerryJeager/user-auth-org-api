@@ -36,6 +36,11 @@ var ErrorAuthUser = BadUserRes{
 	StatusCode: 401,
 }
 
+type Invalid struct {
+	Field string `json:"field"`
+	Message string `json:"message"`
+}
+
 func GetUserRes(user *models.User) *models.GetUserRes {
 	return &models.GetUserRes{
 		ID:        user.ID,
