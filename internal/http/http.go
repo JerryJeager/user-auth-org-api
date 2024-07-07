@@ -15,8 +15,8 @@ type BadUserRes struct {
 	StatusCode int32  `json:"statusCode"`
 }
 type GoodCreateUserRes struct {
-	AccessToken string `json:"accessToken"`
-	User models.GetUserRes `json:"user"`
+	AccessToken string            `json:"accessToken"`
+	User        models.GetUserRes `json:"user"`
 }
 
 var ErrorCreatingUser = BadUserRes{
@@ -30,12 +30,12 @@ var ErrorAuthUser = BadUserRes{
 	StatusCode: 401,
 }
 
-func GetUserRes(user *models.User) *models.GetUserRes{
+func GetUserRes(user *models.User) *models.GetUserRes {
 	return &models.GetUserRes{
-		ID: user.ID,
+		ID:        user.ID,
 		FirstName: user.FirstName,
-		LastName: user.LastName,
-		Email: user.Email,
-		Phone: user.Phone,
+		LastName:  user.LastName,
+		Email:     user.Email,
+		Phone:     user.Phone,
 	}
 }

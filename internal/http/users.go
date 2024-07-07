@@ -67,17 +67,17 @@ func (o *UserController) LoginUser(ctx *gin.Context) {
 
 func (o *UserController) GetUser(ctx *gin.Context) {
 	var userIDPathParam UserIDPathParam
-	if err := ctx.ShouldBindUri(&userIDPathParam); err != nil{
+	if err := ctx.ShouldBindUri(&userIDPathParam); err != nil {
 		ctx.JSON(http.StatusUnauthorized, ErrorAuthUser)
 		return
 	}
 
 	user, err := o.serv.GetUser(ctx, uuid.MustParse(userIDPathParam.UserID))
 
-	if err != nil{
+	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, BadUserRes{
-			Status: "Bad request",
-			Message: "failed to get user",
+			Status:     "Bad request",
+			Message:    "failed to get user",
 			StatusCode: 401,
 		})
 		return
@@ -86,6 +86,6 @@ func (o *UserController) GetUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"status":  "success",
 		"message": "get user successful",
-		"data": *GetUserRes(user),
+		"data":    *GetUserRes(user),
 	})
 }
