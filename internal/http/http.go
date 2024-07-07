@@ -19,6 +19,12 @@ type GoodCreateUserRes struct {
 	User        models.GetUserRes `json:"user"`
 }
 
+type AllOrgsRes struct {
+	Status  string                  `json:"status"`
+	Message string                  `json:"message"`
+	Data    models.OrganisationsRes `json:"data"`
+}
+
 var ErrorCreatingUser = BadUserRes{
 	Status:     "Bad request",
 	Message:    "Registration unsuccessful",

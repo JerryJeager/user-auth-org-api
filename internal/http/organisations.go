@@ -142,10 +142,10 @@ func (o *OrgController) GetOrganisations(ctx *gin.Context) {
 		})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"status":  "success",
-		"message": "get all organisations successful",
-		"data": models.OrganisationsRes{
+	ctx.JSON(http.StatusOK, AllOrgsRes{
+		Status:  "success",
+		Message: "get all organisations successful",
+		Data: models.OrganisationsRes{
 			Organisation: *organisations,
 		},
 	})
