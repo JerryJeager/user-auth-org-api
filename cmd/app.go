@@ -37,6 +37,7 @@ func ExecuteApiRoutes() {
 	organisations := api.Group("/organisations")
 	organisations.POST("", middleware.JwtAuthMiddleware(), orgController.CreateOrganisation)
 	organisations.POST("/:orgId/users", orgController.CreateOrgMember)
+	organisations.GET("/:orgId", orgController.GetOrganisation)
 
 	port := os.Getenv("PORT")
 	if port == "" {

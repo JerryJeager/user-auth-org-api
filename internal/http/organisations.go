@@ -98,3 +98,33 @@ func (o *OrgController) CreateOrgMember(ctx *gin.Context) {
 		"message": "User added to organisation successfully",
 	})
 }
+
+func (o *OrgController) GetOrganisation(ctx *gin.Context) {
+	var orgIDPathParam OrgIDPathParam
+	if err := ctx.ShouldBindUri(&orgIDPathParam); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status":  "Bad request",
+			"message": "organisation id in path parameter should be of type uuid",
+		})
+		return
+	}
+
+	organisation, err := o.serv.GetOrganisation(ctx, uuid.MustParse(orgIDPathParam.OrgID))
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"status":  "Not found",
+			"message": "organisation not found",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "get organisation successful",
+		"data": models.OrganisationRes{
+			ID:          organisation.ID,
+			Name:        organisation.Name,
+			Description: organisation.Description,
+		},
+	})
+}

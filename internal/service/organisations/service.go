@@ -10,6 +10,7 @@ import (
 type OrgSv interface {
 	CreateOrganisation(ctx context.Context, org *models.Organisation, userID uuid.UUID) (*models.Organisation, error)
 	CreateOrgMember(ctx context.Context, orgID, userID uuid.UUID) error
+	GetOrganisation(ctx context.Context, orgID uuid.UUID) (*models.Organisation, error)
 }
 
 type OrgServ struct {
@@ -43,4 +44,8 @@ func (o *OrgServ) CreateOrgMember(ctx context.Context, orgID, userID uuid.UUID) 
 		OrganisationID: orgID,
 	}
 	return o.repo.CreateOrgMember(ctx, &member)
+}
+
+func (o *OrgServ) GetOrganisation(ctx context.Context, orgID uuid.UUID) (*models.Organisation, error){
+	return o.repo.GetOrganisation(ctx, orgID)
 }
