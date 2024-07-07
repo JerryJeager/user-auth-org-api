@@ -57,11 +57,7 @@ func (o *OrgController) CreateOrganisation(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{
 		"status":  "success",
 		"message": "Organisation created successfully",
-		"data": models.OrganisationRes{
-			ID:          organisation.ID,
-			Name:        organisation.Name,
-			Description: organisation.Description,
-		},
+		"data":    *organisation,
 	})
 
 }
@@ -121,10 +117,36 @@ func (o *OrgController) GetOrganisation(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"status":  "success",
 		"message": "get organisation successful",
-		"data": models.OrganisationRes{
-			ID:          organisation.ID,
-			Name:        organisation.Name,
-			Description: organisation.Description,
+		"data":    *organisation,
+	})
+}
+
+func (o *OrgController) GetOrganisations(ctx *gin.Context) {
+	id, ok := ctx.Get("user_id")
+	if !ok {
+		ctx.Status(http.StatusUnauthorized)
+		return
+	}
+
+	userID, err := uuid.Parse(id.(string))
+	if err != nil {
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+
+	organisations, err := o.serv.GetOrganisations(ctx, userID)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"status":  "Not found",
+			"message": "organisation not found",
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "get all organisations successful",
+		"data": models.OrganisationsRes{
+			Organisation: *organisations,
 		},
 	})
 }

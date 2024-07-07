@@ -5,6 +5,7 @@ import (
 
 	"github.com/JerryJeager/user-auth-org-api/config"
 	"github.com/JerryJeager/user-auth-org-api/internal/service/models"
+	"github.com/JerryJeager/user-auth-org-api/internal/utils"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -13,6 +14,7 @@ type OrgStore interface {
 	CreateOrganisation(ctx context.Context, org *models.Organisation, mem *models.Member) error
 	CreateOrgMember(ctx context.Context, member *models.Member) error
 	GetOrganisation(ctx context.Context, orgID uuid.UUID) (*models.Organisation, error)
+	GetOrganisations(ctx context.Context, userID uuid.UUID) (*models.Organisations, error)
 }
 
 type OrgRepo struct {
@@ -52,4 +54,20 @@ func (o *OrgRepo) GetOrganisation(ctx context.Context, orgID uuid.UUID) (*models
 		return &models.Organisation{}, result.Error
 	}
 	return &organisation, nil
+}
+
+func (o *OrgRepo) GetOrganisations(ctx context.Context, userID uuid.UUID) (*models.Organisations, error) {
+	var members models.Members
+	var organisations models.Organisations
+	err := config.Session.Transaction(func(tx *gorm.DB) error {
+		if result := tx.Find(&members, "user_id = ?", userID); result.Error != nil {
+			return result.Error
+		}
+		cond := utils.AllOrgQuery(members) //query condition
+		if result := tx.Find(&organisations, cond); result.Error != nil {
+			return result.Error
+		}
+		return nil
+	})
+	return &organisations, err
 }
