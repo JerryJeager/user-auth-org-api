@@ -14,7 +14,11 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 		id, err := auth.ValidateToken(c)
 
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"Unauthorized": "Authentication required"})
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"status": "Bad request",
+				"message": "Authentication failed",
+				"statusCode": http.StatusUnauthorized,
+			})
 			fmt.Println(err)
 			c.Abort()
 			return

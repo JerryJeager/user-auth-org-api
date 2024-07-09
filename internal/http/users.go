@@ -71,18 +71,35 @@ func (o *UserController) LoginUser(ctx *gin.Context) {
 
 func (o *UserController) GetUser(ctx *gin.Context) {
 	var userIDPathParam UserIDPathParam
+	var currentUserID uuid.UUID
+	var user *models.User
+	var getUserError error
 	if err := ctx.ShouldBindUri(&userIDPathParam); err != nil {
 		ctx.JSON(http.StatusUnauthorized, ErrorAuthUser)
 		return
 	}
-
-	user, err := o.serv.GetUser(ctx, uuid.MustParse(userIDPathParam.UserID))
-
+	id, found := ctx.Get("user_id")
+	if !found {
+		ctx.JSON(http.StatusUnauthorized, ErrorAuthUser)
+		return
+	}
+	currentUserID, err := uuid.Parse(id.(string))
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, BadUserRes{
+		ctx.JSON(http.StatusUnauthorized, ErrorAuthUser)
+		return
+	}
+
+	if currentUserID.String() == userIDPathParam.UserID {
+		user, getUserError = o.serv.GetUser(ctx, uuid.MustParse(userIDPathParam.UserID))
+	} else {
+		user, getUserError = o.serv.GetYourUser(ctx, currentUserID, uuid.MustParse(userIDPathParam.UserID))
+	}
+
+	if getUserError != nil {
+		ctx.JSON(http.StatusForbidden, BadUserRes{
 			Status:     "Bad request",
-			Message:    "failed to get user",
-			StatusCode: 401,
+			Message:    getUserError.Error(),
+			StatusCode: http.StatusForbidden,
 		})
 		return
 	}

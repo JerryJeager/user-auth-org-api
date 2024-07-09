@@ -12,6 +12,7 @@ type UserSv interface {
 	CreateUser(ctx context.Context, user *models.CreateUserReq) (*models.User, string, error)
 	LoginUser(ctx context.Context, user *models.LoginUserReq) (*models.User, string, error)
 	GetUser(ctx context.Context, userID uuid.UUID) (*models.User, error)
+	GetYourUser(ctx context.Context, cUserId, userID uuid.UUID) (*models.User, error)
 }
 
 type UserServ struct {
@@ -77,4 +78,8 @@ func (o *UserServ) LoginUser(ctx context.Context, user *models.LoginUserReq) (*m
 
 func (o *UserServ) GetUser(ctx context.Context, userID uuid.UUID) (*models.User, error) {
 	return o.repo.GetUser(ctx, userID)
+}
+
+func (o *UserServ) GetYourUser(ctx context.Context, cUserId, userID uuid.UUID) (*models.User, error){
+	return o.repo.GetYourUser(ctx, cUserId, userID)
 }
