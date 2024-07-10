@@ -3,10 +3,10 @@ package users
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/JerryJeager/user-auth-org-api/config"
 	"github.com/JerryJeager/user-auth-org-api/internal/service/models"
-	"github.com/JerryJeager/user-auth-org-api/internal/utils"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -61,22 +61,29 @@ func (o *UserRepo) GetUser(ctx context.Context, userID uuid.UUID) (*models.User,
 	return &user, nil
 }
 
-// get's user record of a user in the same organisation as the current logged in user who's making the request
+// get's user record of another user only if they are in the same organisation
 func (o *UserRepo) GetYourUser(ctx context.Context, cUserId, userID uuid.UUID) (*models.User, error) {
-	var currentUserOrgs models.Members
-	var yourUserOrgs models.Members
 	var yourUser models.User
-	if result := config.Session.Find(&currentUserOrgs, "user_id = ?", cUserId); result.Error != nil {
+	query := fmt.Sprintf(`
+	select
+	 	u.id, u.first_name, u.last_name, u.email, u.created_at, u.updated_at, u.deleted_at
+	 	from users as u
+    	inner join (
+   			select y.user_id as your_user_id, y.organisation_id as your_user_org_id
+			from members as y
+    		inner join 
+     			(select * from members where user_id = '%s') as c 
+     			on y.organisation_id = c.organisation_id
+    		where y.user_id = '%s'
+		) 
+		as y on y.your_user_id = u.id`, cUserId, userID) 
+
+	result := config.Session.Raw(query).Scan(&yourUser) 
+	if result.Error != nil {
 		return &models.User{}, result.Error
 	}
-	if result := config.Session.Find(&yourUserOrgs, "user_id = ?", userID); result.Error != nil {
-		return &models.User{}, result.Error
-	}
-	if sameOrgs := utils.IsInSameOrganisation(currentUserOrgs, yourUserOrgs); !sameOrgs {
+	if result.RowsAffected < 1{
 		return &models.User{}, errors.New("users must be in the same organisation to see each other's record")
-	}
-	if result := config.Session.First(&yourUser, "id = ?", userID); result.Error != nil {
-		return &models.User{}, result.Error
 	}
 	return &yourUser, nil
 }
